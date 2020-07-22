@@ -1,0 +1,7 @@
+docker image build -t ex-args .
+docker container run ex-args bash -c "echo $S3_BUCKET" # printa env
+docker container run -it ex-args bash # entrar no container
+
+docker image build --build-arg S3_BUCKET=myapp -t ex-simple-build . # rebuilda a imagem com novo arg
+docker container run ex-args bash -c "echo $S3_BUCKET"
+

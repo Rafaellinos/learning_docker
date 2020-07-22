@@ -1,0 +1,14 @@
+#Dica:
+##Colocar os comandos que serão mudados com mais frequência
+##na parte de baixo do Dockerfile, evitando a reconstrução
+##de layers. Toda vez que vc muda uma linha do Dockerfile,
+##no começo por exemplo, todas as outras serão reconstruídas
+##e o cache dessas layers n poderá ser reaproveitado.
+
+#Entrypoint: o processo será ponto de entrada quando o container estiver executando
+docker image build -t ex-python-serv .
+docker container run -it -v $(pwd):/app -p 8080:8000 --name python-server ex-python-serv
+
+docker container run -it --volumes-from=python-server debian cat /log/http-server.log
+## O comando acima irá acessar os volumes a partir de outro container
+## os volumes ficam disponíveis para acessar em outros container depois de mapeados

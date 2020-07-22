@@ -1,0 +1,5 @@
+## Criando uma nova imagem:
+## Primeiro, dê uma tag a imagem com:
+docker image tag <IMAGE NAME> <USER_DOCKER_HUB>/<IMAGE NAME>:1.0
+docker login --username=<USERNAME>
+docker image push <IMAGE NAME> <USER_DOCKER_HUB>/<IMAGE NAME>:1.0

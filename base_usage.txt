@@ -1,0 +1,111 @@
+## Hello World
+
+docker container run hello-world
+
+# comando run concatena os seguintes comandos:
+# docker image pull + docker container create + 
+# docker container start + docker container exec
+
+## Rodar container em modo interativo e daemon(processo rodando em bg)
+#ex:
+docker container run debian bash --version
+# baixa a imagem e roda o comando bash --version
+
+## comandos;
+docker container ps # todos os container rodando
+docker container ps -a # todos os container parados ou nao e quais foram executados
+docker container run --rm debian bash --version # remove da lista após executado
+# método run sempre cria um novo container
+docker container run -it debian bash # -it modo interativo, entra no terminal do container
+
+# Rodar container e nomear:
+docker container run --name mydb -it debian bash
+# O nome do container precisa ser único, então se vc tentar subir de novo
+# com o run, vai dar conflito de nome. O run sempre cria um novo container.
+
+# Reutilizar container
+docker container ls -a # mostra todos container, parado ou n
+docker container start -ai mydeb# attach e itaractive, equivalente ao -it
+## com o docker container start -ai, as alterações feitas no container,
+## como criar um arquivo, ficam salvas.
+
+# Mapear portas no docker
+## -p <PORTA EXTERNA>:<PORTA INTERNA>
+docker container run -p 8080:80 nginx
+## expondo a porta 80 como porta 8080 do nginx
+
+# Mapeamento de volumes
+## Mapear pasta do host ao container
+cd learning_docker/mapp_volume
+docker container run -p 8080:80 -v $(pwd)/html:/usr/share/nginx/html nginx
+## irá renderizar a página inicial como o html mapeado
+
+# Executa docker em modo daemon
+cd learning_docker/mapp_volume
+docker container run -d --name ex-daemon-basic -p 8080:80 -v $(pwd)/html:/usr/share/nginx/html nginx
+docker container ps # rodando
+## parando container em bg
+docker container stop ex-daemon-basic
+
+# Gerenciando container em BG
+# restart, start e stop
+docker container start ex-daemon-basic
+docker container ps
+docker container restart ex-daemon-basic
+
+# Manipulando containers em modo daemon
+docker container ps # ou ls, mesma coisa. -a=todos
+## acessando logs
+docker container logs ex-daemon-basic
+## inspect container, informações
+docker container inspect
+## executar comando do container
+docker container exec <COMMAND> ## ex: uname -or
+
+# Diferenças de comandos CLI
+docker container ls
+docker image ls
+docker volume ls
+## apagar images
+docker rmi <HASH do cont>
+## mesma coisa que:
+docker image rm <HASH>
+## remover todos container
+docker container rm $(docker ps -aq)
+
+# Imagens
+## possuem hashs sha256, mas é possível nomea-las
+## é basicamente o modelo do sistema de arquivos,
+## um Dockerfile
+
+## ex: 
+docker image pull redis:latest
+
+## pull baixa a imagem do repositorio dockerhub
+## o docker run tbm faz o pull se n encontrar o cache
+## da imagem
+
+docker image ls # ver todas
+docker image inspect redis:latest
+
+## deletar todas imagens
+docker image rm $(docker images -q)
+
+## nova tag a imagem para se referir a ela:
+docker image tag redis:latest coder-redis
+
+## docker image build gera um container com a imagem
+
+## docker imagem push # publica no registry ou no dockerhub
+
+# O que é dockerhub?
+## Contém um registry e uma interface para baixar as imagens
+## é considerado um SaaS(software as a service), podendo enviar
+## e receber imagens.
+
+# Build de imagem
+docker image build -t ex-simple-build .
+## -t = tag
+## irá montar a imagem a partir do dockerfile na mesma pasta
+docker container run -p 8080:80 --name exemplo ex-simple-build
+## comando / porta / nome do container / nome da imagem
