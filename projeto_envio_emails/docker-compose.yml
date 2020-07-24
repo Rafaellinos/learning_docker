@@ -1,0 +1,32 @@
+version: '3'
+volumes:
+    dados:
+services: 
+    db:
+        container_name: psql
+        image: postgres:9.6
+        environment: 
+            POSTGRES_DB: "db"
+            POSTGRES_PASSWORD: "123"
+            POSTGRES_HOST_AUTH_METHOD: "trust"
+        volumes:
+            - dados:/var/lib/postgresql/data
+            - ./scripts:/scripts
+            # convenção para script de inicialização do db
+            - ./scripts/init.sql:/docker-entrypoint-initdb.d/init.sql
+    frontend:
+        container_name: frontend
+        image: nginx:1.13
+        volumes: 
+            - ./web:/usr/share/nginx/html/
+        ports:
+            - 8060:80
+    backend:
+        container_name: backend
+        image: python:3.6
+        volumes: 
+            - ./app:/app
+        ports:
+            - 8080:8080
+        working_dir: /app
+        command: bash app.sh

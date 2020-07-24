@@ -1,0 +1,26 @@
+#Solução assíncrono e escalável para envio de emails.
+
+Será usado:
+nginx
+postgres
+python3.6
+redis3.2
+
+Formulário renderizado no browser pelo Nginx,
+requisição ao app(python), persistida no psql,
+enviada para fila do redis em utilizado um 
+worker(python) para envio de email.
+
+#Comandos:
+
+Teste o banco
+-> docker container exec ac4 psql -U postgres -c "\l" 
+
+Rodar o script check
+-> docker container exec psql psql -U postgres -f /scripts/check.sql
+
+Ver os logs
+-> docker-compose logs -f -t
+-> docker logs frontend -f
+-> docker logs psql -f --tail 100
+
