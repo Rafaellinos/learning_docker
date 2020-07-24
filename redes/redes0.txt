@@ -1,0 +1,69 @@
+# Docker Redes
+
+A comunicação entre o host e o docker é feita
+através da Bridge Network(Padrão).
+É possível utilizar outros tipos de rede, como
+remover a Bridge e ter comunicação direto com
+o host, ou sem network.
+Tipos:
+
+None Network
+Bridge Network(Padrão)
+Host Network
+Overlay Network(Swarm)
+
+ex -> docker network ls
+mostra os tipos de rede
+
+# None Network
+
+Containers isolados, não têm acesso entre sí
+e não tem acesso ao mundo exterior.
+Ideal para serviços que não precisam de comunicação
+externa com a rede, uma vez que o acesso só será
+possível via terminal. Sem acesso a internet.
+
+
+ex -> docker container run -d --net none debian
+# --net para escolher o tipo
+
+# Bridge Network
+
+Camada isolada gerenciada pelo docker.
+Inspecionar a rede:
+-> docker network inspect bridge
+
+-> docker container run -d --name container1 alpine sleep 1000
+-> docker container exec -it container1 ifconfig # ver interface, 172.17.0.2
+## criando segundo container
+-> docker container run -d --name container2 alpine sleep 1000 # ip desse 172.17.0.3
+
+Pingar um outro container:
+-> docker container exec -it container1 ping 172.17.0.3
+
+# Criar nova rede
+
+-> docker network create --driver bridge rede_nova
+-> docker network inspect rede_nova # endereçamento subnet "172.18.0.0/16"
+-> docker container run -d --name container3 --net rede_nova alpine sleep 1000
+-> docker container exec -it container3 ifconfig # na rede 172.18.0.2
+
+A partir do container3, pingar o ip do container1
+Não é possível, pois estão em redes diferentes.
+
+Para configurar:
+-> docker network connect bridge container3 
+Conectar a rede atual e a rede bridge(default do docker com driver bridge)
+
+Para pingar e verificar:
+-> docker container exec -it container ifconfig
+Será mostrada a interface da rede bridge tbm
+
+Desconectar a rede:
+-> docker network disconnect bridge container3
+
+# Host network
+Nível de proteção baixo.
+Comunicação direto com as interfaces de rede da máquina host
+docker container run -d --name container4 --net host alpine sleep 100
+docker container exec -it container4 ifconfig

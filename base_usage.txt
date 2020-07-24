@@ -61,6 +61,7 @@ docker container logs ex-daemon-basic
 docker container inspect
 ## executar comando do container
 docker container exec <COMMAND> ## ex: uname -or
+docker exec -it teste_rafael1 redis-cli ping
 
 # Diferenças de comandos CLI
 docker container ls
@@ -109,3 +110,6 @@ docker image build -t ex-simple-build .
 ## irá montar a imagem a partir do dockerfile na mesma pasta
 docker container run -p 8080:80 --name exemplo ex-simple-build
 ## comando / porta / nome do container / nome da imagem
+
+# Remover o container depois de rodar
+docker container run --rm alpine ash -c "ifconfig"
