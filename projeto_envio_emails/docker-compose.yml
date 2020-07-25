@@ -1,6 +1,10 @@
 version: '3'
 volumes:
     dados:
+networks:
+    banco:
+    web:
+    fila:
 services: 
     db:
         container_name: psql
@@ -14,19 +18,63 @@ services:
             - ./scripts:/scripts
             # convenção para script de inicialização do db
             - ./scripts/init.sql:/docker-entrypoint-initdb.d/init.sql
+        networks:
+            - banco
     frontend:
         container_name: frontend
         image: nginx:1.13
         volumes: 
             - ./web:/usr/share/nginx/html/
+            - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
         ports:
             - 8060:80
+        networks: 
+            - web
+        depends_on: 
+            # ordem de execução: primeiro backend, depois front
+            # se vc só inicializar o front, vai tbm iniciar o backend
+            - backend
     backend:
         container_name: backend
         image: python:3.6
         volumes: 
             - ./app:/app
-        ports:
-            - 8080:8080
+        # Não precisa da porta, pois o nginx faz o redirect
+        # ports:
+        #     - 8080:8080
         working_dir: /app
         command: bash app.sh
+        networks: 
+            - banco
+            - web
+            - fila
+        depends_on: 
+            - db
+            - queue
+        environment:
+            - DB_NAME=email_sender
+            - DB_HOST=db
+            - DB_USER=postgres
+            - REDIS_HOST=queue
+    queue:
+        container_name: queue
+        image: redis:3.2
+        networks:
+            - fila
+    worker:
+        # remover o container name se não
+        # gera conflito com scale. Container tem que ser nomes únicos
+        #container_name: worker
+        #image: python:3.6
+        build: ./worker
+        volumes: 
+            - ./worker:/worker
+        working_dir: /worker
+        #command: bash ./app.sh
+        command: worker.py
+        networks: 
+            - fila
+        depends_on: 
+            - queue
+        environment:
+            - REDIS_HOST=queue

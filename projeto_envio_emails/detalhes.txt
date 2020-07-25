@@ -24,3 +24,14 @@ Ver os logs
 -> docker logs frontend -f
 -> docker logs psql -f --tail 100
 
+Checar se dados foram inseridos
+-> docker container exec psql psql -U postgres -d email_sender -c "select * from emails"
+
+Foram criadas 3 redes:
+banco, web e fila
+Ver networks:
+docker networks ls
+
+Comando para escalar com workers:
+-> docker-compose up -d --scale worker=3
+

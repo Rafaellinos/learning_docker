@@ -1,0 +1,6 @@
+version: '3'
+services:
+    ## Para sobreescrever o compose yml
+    backend:
+        environment: 
+            - DB_NAME=email_sender
